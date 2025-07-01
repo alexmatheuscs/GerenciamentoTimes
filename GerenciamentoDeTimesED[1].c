@@ -261,53 +261,56 @@ void mostrar_composicao_equipe(Head *head, char nomeProcurado[30], char categori
     printf("Equipe não encontrada.\n");
 }
 
+// função para mostrar informações especificas sobre determinado atleta de uma certa equipe, modalidade e categoria
 void mostrar_dados_atleta(Head *head) {
-    char nome[50], esporte[50], categoria[50], nomeAtleta[50]; int matricula;
+    char nome[50], esporte[50], categoria[50], nomeAtleta[50]; int matricula; // criterios de busca para encontrar as infos do atleta
     printf("\nEquipe nome: "); fgets(nome, 50, stdin); nome[strcspn(nome, "\n")] = '\0';
     printf("Esporte: "); fgets(esporte, 50, stdin); esporte[strcspn(esporte, "\n")] = '\0';
     printf("Categoria: "); fgets(categoria, 50, stdin); categoria[strcspn(categoria, "\n")] = '\0';
-    noTime *equipe = buscar_equipe(head, nome, esporte, categoria);
-    if (!equipe || !equipe->listaAtletas) { printf("Equipe ou atletas inexistentes.\n"); return; }
+    noTime *equipe = buscar_equipe(head, nome, esporte, categoria); // nó simplesmnete encadeado que irá fazer uma busca inicial entre as equipe, depois que encontra a equipe, busca pelo nome da equipe, esporte e categoria
+    if (!equipe || !equipe->listaAtletas) { printf("Equipe ou atletas inexistentes.\n"); return; } // mensagem para caso haja erro na busca
     printf("Nome do atleta: "); fgets(nomeAtleta, 50, stdin); nomeAtleta[strcspn(nomeAtleta, "\n")] = '\0';
     printf("Matricula: "); scanf("%d", &matricula); getchar();
-    noAtleta *a = equipe->listaAtletas;
+    noAtleta *a = equipe->listaAtletas; // no duplamente encadeado que percorre a lista circular com as infos das equipes e ponteiro que leva para a lista de atletas 
     do {
+      // condicional para que ao dar match com as infos digitadas pelo usuario retorne nome, idade, num da camisa e num de faltas desse determinado atleta solicitado
         if (strcmp(a->atleta.nome, nomeAtleta) == 0 && a->atleta.matricula == matricula) {
             printf("Nome: %s, Idade: %d, Camisa: %d, Faltas: %d\n", a->atleta.nome, a->atleta.idade, a->atleta.numeroDaCamisa, a->atleta.quantDeFaltas);
             return;
         }
         a = a->prox;
-    } while (a != equipe->listaAtletas);
+    } while (a != equipe->listaAtletas); // condição de parada e/ou erro
     printf("Atleta nao encontrado.\n");
 }
 
+//função que mostra todos os atletas de uma determinada categoria. Ex.: todos os atletas da categoria SUB-20 do Flamengo
 void mostrar_atletas_categoria(Head *head) {
     char categoria[50];
     printf("\nDigite a categoria: ");
     fgets(categoria, 50, stdin);
     categoria[strcspn(categoria, "\n")] = '\0';
 
-    noTime *equipe = head->refInicio;
+    noTime *equipe = head->refInicio; // nó com ponteiro que leva para o inicio da lista das equipes para que seja buscado a categoria nelas
     int categoria_encontrada = 0; 
     int atletas_encontrados = 0; 
 
     while (equipe) {
-        if (strcmp(equipe->time.categoria, categoria) == 0) {
+        if (strcmp(equipe->time.categoria, categoria) == 0) { //condição para comparação e inicio da lista caso o time possua a determinada categoria
             categoria_encontrada = 1; 
-            if (equipe->listaAtletas) {
+            if (equipe->listaAtletas) { // mesma condição só que agora para ter atletas cadastrados nessa categoria
                 atletas_encontrados = 1;
                 printf("Equipe %s (%s):\n", equipe->time.nome, equipe->time.esporte);
-                noAtleta *a = equipe->listaAtletas;
+                noAtleta *a = equipe->listaAtletas; // no com ponteiro que leva para a lista de atletas, para que seja possivel iniciar o filtro de categoria
                 do {
                     printf("   %s - Matricula: %d\n", a->atleta.nome, a->atleta.matricula);
-                    a = a->prox;
+                    a = a->prox; // imprime o nome de um atleta e vai para o prox, se ele atender as coaracteristicas adiciona o nome desse atleta na lista
                 } while (a != equipe->listaAtletas);
             }
         }
         equipe = equipe->proxTime;
     }
 
-    if (!categoria_encontrada) {
+    if (!categoria_encontrada) { // condições de parada/erro
         printf("Nenhuma equipe encontrada para a categoria '%s'.\n", categoria);
     } else if (categoria_encontrada && !atletas_encontrados) {
         printf("Nao ha atletas associados a nenhuma equipe na categoria '%s'.\n", categoria);
