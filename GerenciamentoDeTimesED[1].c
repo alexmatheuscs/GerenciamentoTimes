@@ -32,6 +32,9 @@ LUIS FELIPE RAMALHO CARVALHO - 202400028955
 #include <stdlib.h>
 #include <string.h>
 
+/***************************************************************************/
+/* ESTRUTURAS */
+/****************************************************************************/
 // Estrutura para os dados do Time/Equipe
 typedef struct gerenciamentoTimes {
     char nome[50];
@@ -69,6 +72,9 @@ typedef struct head {
     int quantidade;
 } Head;
 
+/***************************************************************************/
+/* INICIAR A LISTA */
+/****************************************************************************/
 Head *iniciarHead(void) {
     Head *head = (Head*)malloc(sizeof(Head));
     if (head == NULL) return NULL;
@@ -77,14 +83,19 @@ Head *iniciarHead(void) {
     head->refFinal = NULL;
     return head;
 }
-// Verificar se as equipes são iguais
+
+/***************************************************************************/
+/* Verificar se as equipes são iguais */
+/****************************************************************************/
 int equipe_igual(noTime *equipe, char *nome, char *esporte, char *categoria) {
     return (strcmp(equipe->time.nome, nome) == 0 &&
             strcmp(equipe->time.esporte, esporte) == 0 &&
             strcmp(equipe->time.categoria, categoria) == 0);
 }
-// buscar equipe na lista
 
+/***************************************************************************/
+/* buscar equipe na lista */
+/****************************************************************************/
 noTime* buscar_equipe(Head *head, char *nome, char *esporte, char *categoria) {
     noTime *aux = head->refInicio;
     while (aux != NULL) {
@@ -93,7 +104,10 @@ noTime* buscar_equipe(Head *head, char *nome, char *esporte, char *categoria) {
     }
     return NULL;
 }
-// cadastrar equipe
+
+/***************************************************************************/
+/* cadastrar equipe */
+/****************************************************************************/
 void cadastrar_equipe(Head *head) {
     if (!head) return;
     // alocação de memoria
@@ -113,7 +127,11 @@ void cadastrar_equipe(Head *head) {
     head->quantidade++;
     printf("Equipe cadastrada com sucesso!\n");
 }
-// cadastrar atleta na equipe
+
+
+/***************************************************************************/
+/* cadastrar atleta em equipe */
+/****************************************************************************/
 void cadastrar_atleta(Head *head) {
     char nome[50], esporte[50], categoria[50];
     // verificar se existe a equipe
@@ -146,63 +164,156 @@ void cadastrar_atleta(Head *head) {
     printf("Atleta cadastrado com sucesso!\n");
 }
 
+
+/***************************************************************************/
+/* Função que remove uma equipe da lista */
+/****************************************************************************/
 void remover_equipe(Head *head) {
+    // Variáveis para armazenar os dados da equipe
     char nome[50], esporte[50], categoria[50];
-    printf("\nDigite o nome da equipe: "); fgets(nome, 50, stdin); nome[strcspn(nome, "\n")] = '\0';
-    printf("Digite o esporte: "); fgets(esporte, 50, stdin); esporte[strcspn(esporte, "\n")] = '\0';
-    printf("Digite a categoria: "); fgets(categoria, 50, stdin); categoria[strcspn(categoria, "\n")] = '\0';
+
+    // Entrada dos dados da equipe
+    printf("\nDigite o nome da equipe: "); 
+    fgets(nome, 50, stdin); 
+    nome[strcspn(nome, "\n")] = '\0'; // Remove o caractere '\n' ao final
+
+    printf("Digite o esporte: "); 
+    fgets(esporte, 50, stdin); 
+    esporte[strcspn(esporte, "\n")] = '\0';
+
+    printf("Digite a categoria: "); 
+    fgets(categoria, 50, stdin); 
+    categoria[strcspn(categoria, "\n")] = '\0';
+
+    // Ponteiros auxiliares para percorrer e remover
     noTime *aux = head->refInicio, *anterior = NULL;
+
+    // Busca pela equipe na lista
     while (aux && !equipe_igual(aux, nome, esporte, categoria)) {
         anterior = aux;
         aux = aux->proxTime;
     }
-    if (!aux) { printf("Equipe nao encontrada.\n"); return; }
+
+    // Caso a equipe não seja encontrada
+    if (!aux) { 
+        printf("Equipe nao encontrada.\n"); 
+        return; 
+    }
+
+    // Se houver atletas na equipe, libera todos
     if (aux->listaAtletas) {
         noAtleta *inicio = aux->listaAtletas;
+
+        // Quebra a circularidade da lista de atletas
         inicio->ant->prox = NULL;
+
+        // Liberação da memória dos atletas
         while (inicio) {
             noAtleta *tmp = inicio;
             inicio = inicio->prox;
             free(tmp);
         }
     }
-    if (!anterior) head->refInicio = aux->proxTime;
-    else anterior->proxTime = aux->proxTime;
-    if (aux == head->refFinal) head->refFinal = anterior;
+
+    // Remoção do nó da equipe na lista encadeada
+    if (!anterior) 
+        head->refInicio = aux->proxTime; // Era o primeiro
+    else 
+        anterior->proxTime = aux->proxTime; // Meio ou fim
+
+    // Atualiza ponteiro final, se necessário
+    if (aux == head->refFinal) 
+        head->refFinal = anterior;
+
+    // Libera memória da equipe e atualiza contador
     free(aux);
     head->quantidade--;
+
     printf("Equipe removida.\n");
 }
 
+
+/***************************************************************************/
+/* Função que remove um atleta de uma equipe específica */
+/****************************************************************************/
 void remover_atleta(Head *head) {
+    // Dados da equipe
     char nome[50], esporte[50], categoria[50];
-    printf("\nDigite o nome da equipe: "); fgets(nome, 50, stdin); nome[strcspn(nome, "\n")] = '\0';
-    printf("Digite o esporte: "); fgets(esporte, 50, stdin); esporte[strcspn(esporte, "\n")] = '\0';
-    printf("Digite a categoria: "); fgets(categoria, 50, stdin); categoria[strcspn(categoria, "\n")] = '\0';
+
+    // Leitura dos dados identificadores da equipe
+    printf("\nDigite o nome da equipe: "); 
+    fgets(nome, 50, stdin); 
+    nome[strcspn(nome, "\n")] = '\0';
+
+    printf("Digite o esporte: "); 
+    fgets(esporte, 50, stdin); 
+    esporte[strcspn(esporte, "\n")] = '\0';
+
+    printf("Digite a categoria: "); 
+    fgets(categoria, 50, stdin); 
+    categoria[strcspn(categoria, "\n")] = '\0';
+
+    // Busca pela equipe na lista
     noTime *equipe = buscar_equipe(head, nome, esporte, categoria);
-    if (!equipe || !equipe->listaAtletas) { printf("Equipe ou atletas inexistentes.\n"); return; }
-    char nomeAtleta[50]; int matricula;
-    printf("Nome do atleta: "); fgets(nomeAtleta, 50, stdin); nomeAtleta[strcspn(nomeAtleta, "\n")] = '\0';
-    printf("Matricula do atleta: "); scanf("%d", &matricula); getchar();
+
+    // Se equipe não existe ou não tem atletas
+    if (!equipe || !equipe->listaAtletas) {
+        printf("Equipe ou atletas inexistentes.\n"); 
+        return;
+    }
+
+    // Dados do atleta a ser removido
+    char nomeAtleta[50]; 
+    int matricula;
+
+    printf("Nome do atleta: "); 
+    fgets(nomeAtleta, 50, stdin); 
+    nomeAtleta[strcspn(nomeAtleta, "\n")] = '\0';
+
+    printf("Matricula do atleta: "); 
+    scanf("%d", &matricula); 
+    getchar(); // Consome o '\n' deixado pelo scanf
+
+    // Ponteiro para percorrer a lista circular de atletas
     noAtleta *aux = equipe->listaAtletas;
+
+    // Percorre a lista circular
     do {
+        // Compara nome e matrícula do atleta atual
         if (strcmp(aux->atleta.nome, nomeAtleta) == 0 && aux->atleta.matricula == matricula) {
-            if (aux->prox == aux) equipe->listaAtletas = NULL;
+            
+            // Caso o atleta seja o único na lista
+            if (aux->prox == aux) 
+                equipe->listaAtletas = NULL;
+
             else {
+                // Ajusta os ponteiros para remover o nó da lista
                 aux->ant->prox = aux->prox;
                 aux->prox->ant = aux->ant;
-                if (equipe->listaAtletas == aux) equipe->listaAtletas = aux->prox;
+
+                // Se o atleta removido for o primeiro da lista
+                if (equipe->listaAtletas == aux) 
+                    equipe->listaAtletas = aux->prox;
             }
+
+            // Libera a memória do atleta removido
             free(aux);
             printf("Atleta removido.\n");
             return;
         }
+
         aux = aux->prox;
-    } while (aux != equipe->listaAtletas);
+
+    } while (aux != equipe->listaAtletas); // Percorre até voltar ao início
+
+    // Caso o atleta não seja encontrado
     printf("Atleta nao encontrado.\n");
 }
 
-void exibir_equipes(Head *head) // função para mostrar as equipes cadastradas
+/***************************************************************************/
+/* mostrar as equipes cadastradas */
+/****************************************************************************/
+void exibir_equipes(Head *head)
 {
     if (head == NULL || head->refFinal == NULL) // se não tiver nenhuma equipe cadastrada, já retorna avisando
     {
@@ -220,7 +331,11 @@ void exibir_equipes(Head *head) // função para mostrar as equipes cadastradas
     }
 }
 
-void mostrar_composicao_equipe(Head *head, char nomeProcurado[30], char categoriaProcurada[30], char esporteProcurado[30]) // função para mostrar a composição da equipe
+
+/***************************************************************************/
+/* função para mostrar a composição da equipe */
+/****************************************************************************/
+void mostrar_composicao_equipe(Head *head, char nomeProcurado[30], char categoriaProcurada[30], char esporteProcurado[30])
 {
     // verifica se tem equipe cadastrada, senão já sai
     if (head == NULL || head->refInicio == NULL)
@@ -261,7 +376,10 @@ void mostrar_composicao_equipe(Head *head, char nomeProcurado[30], char categori
     printf("Equipe não encontrada.\n");
 }
 
-// função para mostrar informações especificas sobre determinado atleta de uma certa equipe, modalidade e categoria
+
+/***************************************************************************/
+/* função para mostrar informações especificas sobre determinado atleta de uma certa equipe, modalidade e categoria */
+/****************************************************************************/
 void mostrar_dados_atleta(Head *head) {
     char nome[50], esporte[50], categoria[50], nomeAtleta[50]; int matricula; // criterios de busca para encontrar as infos do atleta
     printf("\nEquipe nome: "); fgets(nome, 50, stdin); nome[strcspn(nome, "\n")] = '\0';
@@ -283,7 +401,10 @@ void mostrar_dados_atleta(Head *head) {
     printf("Atleta nao encontrado.\n");
 }
 
-//função que mostra todos os atletas de uma determinada categoria. Ex.: todos os atletas da categoria SUB-20 do Flamengo
+
+/***************************************************************************/
+/* função que mostra todos os atletas de uma determinada categoria. Ex.: todos os atletas da categoria SUB-20 do Flamengo */
+/****************************************************************************/
 void mostrar_atletas_categoria(Head *head) {
     char categoria[50];
     printf("\nDigite a categoria: ");
@@ -317,6 +438,9 @@ void mostrar_atletas_categoria(Head *head) {
     }
 }
 
+/***************************************************************************/
+/* FUNÇÃO PRINCIPAL */
+/****************************************************************************/
 int main() {
     Head *head = iniciarHead();
     int op;
