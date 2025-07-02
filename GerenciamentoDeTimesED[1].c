@@ -445,8 +445,24 @@ int main() {
     Head *head = iniciarHead();
     int op;
     do {
-        printf("\n1-Cadastrar equipe\n2-Cadastrar atleta\n3-Remover equipe\n4-Remover atleta\n5-Listar equipes\n6-Composicao equipe\n7-Dados de atleta\n8-Atletas por categoria\n0-Sair\nOpcao: ");
-        scanf("%d", &op); getchar();
+        printf("--------------------------------\n");
+        printf("GERENCIAMENTO DE CLUBE ESPORTIVO\n");
+        printf("              MENU              \n");
+        printf("--------------------------------\n");
+        printf("1 - Cadastrar equipe;\n");
+        printf("2 - Cadastrar atleta em equipe;\n");
+        printf("3 - Remover equipe;\n");
+        printf("4 - Remover atleta;\n");
+        printf("5 - Mostrar todas as equipes;\n");
+        printf("6 - Mostrar composição de equipe;\n");
+        printf("7 - Mostrar dados de atleta;\n");
+        printf("8 - Mostrar atletas por categoria;\n");
+        printf("0 - Encerrar programa.\n");
+        printf("--------------------------------\n");
+        printf("Digite uma opção: ");
+        scanf("%d", &op);
+        getchar();
+
         switch(op) {
             case 1: cadastrar_equipe(head); break;
             case 2: cadastrar_atleta(head); break;
@@ -454,25 +470,33 @@ int main() {
             case 4: remover_atleta(head); break;
             case 5: exibir_equipes(head); break;
             case 6: {
-            char nome[50], categoria[50], esporte[50];
+                char nome[50], categoria[50], esporte[50];
 
-            printf("Digite o nome da equipe: ");
-            fgets(nome, sizeof(nome), stdin);
-            nome[strcspn(nome, "\n")] = '\0';
+                printf("Digite o nome da equipe: ");
+                fgets(nome, sizeof(nome), stdin);
+                nome[strcspn(nome, "\n")] = '\0';
 
-            printf("Digite o esporte da equipe: ");
-            fgets(esporte, sizeof(esporte), stdin);
-            esporte[strcspn(esporte, "\n")] = '\0';
+                printf("Digite o esporte da equipe: ");
+                fgets(esporte, sizeof(esporte), stdin);
+                esporte[strcspn(esporte, "\n")] = '\0';
 
-            printf("Digite a categoria da equipe: ");
-            fgets(categoria, sizeof(categoria), stdin);
-            categoria[strcspn(categoria, "\n")] = '\0';
+                printf("Digite a categoria da equipe: ");
+                fgets(categoria, sizeof(categoria), stdin);
+                categoria[strcspn(categoria, "\n")] = '\0';
 
-            mostrar_composicao_equipe(head, nome, categoria, esporte);
-            break;
-        }
+                mostrar_composicao_equipe(head, nome, categoria, esporte);
+                break;
+                }
+
             case 7: mostrar_dados_atleta(head); break;
             case 8: mostrar_atletas_categoria(head); break;
+
+            case 0:
+                printf("\nSaindo do programa...\n");
+                break;
+
+            default:
+                printf("\nOpção inválida! Tente novamente.\n");
         }
     } while(op != 0);
     return 0;
